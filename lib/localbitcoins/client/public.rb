@@ -13,21 +13,21 @@ module LocalBitcoins
     #
     # NOTE: countrycode must be 2 characters and currency must be 3 characters
     #
-    def online_buy_ads_lookup(params={})
+    def online_buy_ads_lookup(params={}, headers={})
       params.each_key do |k|
           params[k]<<'/'
       end
-      online_buy_ads_uri = open("#{ROOT}/buy-bitcoins-online/#{params[:countrycode]}#{params[:currency]}#{params[:country_name]}#{params[:payment_method]}.json")
+      online_buy_ads_uri = open("#{ROOT}/buy-bitcoins-online/#{params[:countrycode]}#{params[:currency]}#{params[:country_name]}#{params[:payment_method]}.json", headers)
       Hashie::Mash.new(JSON.parse(online_buy_ads_uri.read)) if online_buy_ads_uri.status.first=='200'
     end
 
     # NOTE: Same format as online_buy_ads_lookup, but buy is replaced with sell
     #
-    def online_sell_ads_lookup(params={})
+    def online_sell_ads_lookup(params={}, headers={})
       params.each do |k,v|
           params[k]=v<<'/' unless v.nil?
       end
-      online_sell_ads_uri = open("#{ROOT}/sell-bitcoins-online/#{params[:countrycode]}#{params[:currency]}#{params[:country_name]}#{params[:payment_method]}.json")
+      online_sell_ads_uri = open("#{ROOT}/sell-bitcoins-online/#{params[:countrycode]}#{params[:currency]}#{params[:country_name]}#{params[:payment_method]}.json", headers)
       Hashie::Mash.new(JSON.parse(online_sell_ads_uri.read)) if online_sell_ads_uri.status.first=='200'
     end
 
@@ -39,26 +39,26 @@ module LocalBitcoins
     # lat                       - latitude of location [float]
     # lon                       - longitude of location [float]
     #
-    def local_buy_ad(params={})
-      local_buy_ad_uri = open("#{ROOT}/buy-bitcoins-with-cash/#{params[:location_id]}/#{params[:location_slug].downcase}/.json?lat=#{params[:lat]}&lon=#{params[:lon]}")
+    def local_buy_ad(params={}, headers={})
+      local_buy_ad_uri = open("#{ROOT}/buy-bitcoins-with-cash/#{params[:location_id]}/#{params[:location_slug].downcase}/.json?lat=#{params[:lat]}&lon=#{params[:lon]}", headers)
       Hashie::Mash.new(JSON.parse(local_buy_ad_uri.read)) if local_buy_ad_uri.status.first=='200'
     end
 
     # NOTE: Same format as local_buy_ad, but buy is replaced with sell
     #
-    def local_sell_ad(params={})
-      local_sell_ad_uri = open("#{ROOT}/sell-bitcoins-with-cash/#{params[:location_id]}/#{params[:location_slug].downcase}/.json?lat=#{params[:lat]}&lon=#{params[:lon]}")
+    def local_sell_ad(params={}, headers={})
+      local_sell_ad_uri = open("#{ROOT}/sell-bitcoins-with-cash/#{params[:location_id]}/#{params[:location_slug].downcase}/.json?lat=#{params[:lat]}&lon=#{params[:lon]}", headers)
       Hashie::Mash.new(JSON.parse(local_sell_ad_uri.read)) if local_sell_ad_uri.status.first=='200'
     end
 
-    def payment_methods(countrycode=nil)
+    def payment_methods(countrycode=nil, headers={})
       countrycode<<'/' unless countrycode.nil?
-      payment_methods_uri = open("#{ROOT}/api/payment_methods/#{countrycode}")
+      payment_methods_uri = open("#{ROOT}/api/payment_methods/#{countrycode}", headers)
       Hashie::Mash.new(JSON.parse(payment_methods_uri.read)).data if payment_methods_uri.status.first=='200'
     end
 
-    def currencies
-      currencies_uri = open("#{ROOT}/api/currencies/")
+    def currencies(headers={})
+      currencies_uri = open("#{ROOT}/api/currencies/", headers)
       Hashie::Mash.new(JSON.parse(currencies_uri.read)).data if currencies_uri.status.first=='200'
     end
 
@@ -70,8 +70,8 @@ module LocalBitcoins
     # countrycode               - 2 letter countrycode
     # location_string           - location name in string form
     #
-    def places(params={})
-      places_uri = open("#{ROOT}/api/places/?#{params.to_query}")
+    def places(params={}, headers={})
+      places_uri = open("#{ROOT}/api/places/?#{params.to_query}", headers)
       Hashie::Mash.new(JSON.parse(places_uri.read)).data if places_uri.status.first=='200'
     end
   end
